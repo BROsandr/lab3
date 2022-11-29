@@ -1,14 +1,19 @@
 #!/bin/bash
 
-exec 4<>p1
-exec 5<>p2
+sudo ./light_detect -q 1000 ./light_data 2000 &
+sudo ./sound_detect -q ./sound_data &
+
+exec 4<>./sound_data
+exec 5<>./light_data
+
+read -u 4 line
 
 while :
 do
   while :
   do
     read -u 5 line
-    threshold=10000
+    threshold=5000
     if [ $line -ge $threshold ]
     then
       break
@@ -16,6 +21,7 @@ do
   done
 
   start=$SECONDS
+  read -u 4 line
   read -u 4 line
   duration=$(( SECONDS - start ))
   soundspeed=343
