@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo ./light_detect -q 1000 ./light_data 2000 &
+trap 'sudo pkill light_detect;sudo pkill sound_detect;exit 0' INT
+
+sudo ./light_detect -q 1000 ./light_data 200 &
 sudo ./sound_detect -q ./sound_data &
 
 exec 4<>./sound_data
@@ -10,15 +12,7 @@ read -u 4 line
 
 while :
 do
-  while :
-  do
-    read -u 5 line
-    threshold=5000
-    if [ $line -ge $threshold ]
-    then
-      break
-    fi
-  done
+  read -u 5 lihe
 
   start=$SECONDS
   read -u 4 line
@@ -27,3 +21,4 @@ do
   soundspeed=343
   echo $(($duration * $soundspeed))
 done
+

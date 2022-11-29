@@ -72,13 +72,16 @@ int main(int argc, char *argv[])
 				quiet = 1;
 			}
 			int channel_named = -1;
-			channel_named = open(argv[3], O_RDWR);
-			if( channel_named == -1) {
-				fprintf(stderr, "cannot open channel");
-				exit(-1);
-			}
-			channel_general = channel_named;
-			tresh = atoi(argv[4]);
+			if( argc > 3 ) {
+			  channel_named = open(argv[3], O_RDWR);
+			  if( channel_named == -1) {
+			  	  fprintf(stderr, "cannot open channel");
+				  exit(-1);
+			  }
+			  channel_general = channel_named;
+		          if( argc > 4 )
+			    tresh = atoi(argv[4]);
+                       }
 		}
 	}
 	if (!quiet)
