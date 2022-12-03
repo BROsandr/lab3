@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 		clock_gettime(CLOCK_REALTIME, &time);
 		if( adc0 > tresh ) {
 			if (quiet) {
-				sprintf(buff, "%d\n", adc0, time.tv_sec);
+				sprintf(buff, "%d\n", time.tv_sec);
 				write(channel_general, buff, strlen(buff));
 				// printf("%d\n", adc0);
 				// fflush(stdout);
