@@ -26,7 +26,14 @@ int main() {
   int distance_seconds = atoi(sound_time) - atoi(light_time);
   int distance_meters  = distance_seconds * SOUND_SPEED;
 
-  printf("%d", distance_meters);
+  int hr=(int)(distance_seconds/3600);
+  int min=((int)(distance_seconds/60))%60;
+  int sec=(int)(distance_seconds%60);
+
+  char *hms_light[256] = { '\0' };
+  sprintf(hms_light, "%d:%d:%d\n", hr, min, sec);
+
+  printf(hms_light);
 
   close(light_data);
   close(sound_data);
