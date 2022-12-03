@@ -16,7 +16,6 @@ do
 
   start=$SECONDS
   read -u 4 line
-  read -u 4 line
   duration=$(( SECONDS - start ))
   soundspeed=343
   echo $(($duration * $soundspeed))
