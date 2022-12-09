@@ -47,19 +47,37 @@ int main() {
   } who_exited = NONE;
 
   while(1) {
-    read(light_data, light_time, 256);
+    int read_res = read(light_data, light_time, 256);
+    if(read_res == -1) {
+      printf("%s", "read error\n");
+      exit(0);
+    } else if(read_res == 0) {
+      printf("%s", "light_data closed\n");
+      exit(0);
+    };
     if(!strcmp(light_time, "a\n")) {
       printf("light exits\n");
       who_exited = LIGHT;
       break;
     }
     FILE *fp = popen("date -u +%H:%M:%S", "r");
+    if(fp == NULL) {
+      printf("popen error\n");
+      exit(0);
+    }
     if (fgets(hms_light, 256, fp) != NULL) {
       printf("время измерения вспышки № %d: %s\n", iterations, hms_light);
     }
     pclose(fp);
 
-    read(sound_data, sound_time, 256);
+    read_res = read(sound_data, sound_time, 256);
+    if(read_res == -1) {
+      printf("%s", "read error\n");
+      exit(0);
+    } else if(read_res == 0) {
+      printf("%s", "light_data closed\n");
+      exit(0);
+    }
     // for(int i = 0; i < strlen(sound_time); ++i) {
     //   printf("%c\n", sound_time[i]);
     // }
@@ -70,6 +88,10 @@ int main() {
       break;
     }
     fp = popen("date -u +%H:%M:%S", "r");
+    if(fp == NULL) {
+      printf("popen error\n");
+      exit(0);
+    }
     if (fgets(hms_sound, 256, fp) != NULL) {
       printf("время измерения хлопка № %d: %s\n", iterations, hms_sound);
     }
@@ -85,12 +107,18 @@ int main() {
   }
   while(1) {
     if(who_exited == SOUND) {
-      read(light_data, light_time, 256);
+      if(read(light_data, light_time, 256) == -1) {
+        printf("%s", "read error\n");
+        exit(0);
+      }
       if(strcmp(light_time, "a\n")) continue;
       printf("light exited\n");
       break;
     } else {
-      read(sound_data, sound_time, 256);
+      if(read(sound_data, sound_time, 256)) {
+        printf("%s", "read error\n");
+        exit(0);
+      }
       if(strcmp(sound_time, "b\n")) continue;
       printf("sound exited\n");
       break;
