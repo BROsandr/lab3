@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <signal.h>
 
 #include "./Adafruit_ADS1X15_RPi/Adafruit_ADS1015.h"
 
@@ -55,10 +56,17 @@ void help()
 	printf("    -q - quiet\n");
 }
 
+int channel_general = STDOUT_FILENO;
+
+void interrupt(int unused) {
+  write(channel_general, "a\n", 1);
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
+    signal(SIGINT, interrupt);
 	int quiet = 0;
-	int channel_general = STDOUT_FILENO;
 	int tresh = -1;
 	if (argc <= 1) {
 		help();
@@ -73,7 +81,7 @@ int main(int argc, char *argv[])
 			}
 			int channel_named = -1;
 			if( argc > 3 ) {
-			  channel_named = open(argv[3], O_RDWR);
+			  channel_named = open(argv[3], O_WRONLY);
 			  if( channel_named == -1) {
 			  	  fprintf(stderr, "cannot open channel");
 				  exit(-1);

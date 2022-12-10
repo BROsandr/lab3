@@ -149,11 +149,19 @@ void Exiting_sig()
 	exit(0);
 }
 
+int channel_general = STDOUT_FILENO;
+
+void interrupt(int unused) {
+  write(channel_general, "b\n", 1);
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-	signal(SIGINT, Exiting_sig);
-	int quiet = 0;
-	int channel_general = STDOUT_FILENO;
+	
+        signal(SIGINT, Exiting_sig);
+	signal(SIGINT, interrupt);
+        int quiet = 0;
 	char extern_chan = 0;
 	if (argc > 1){
 		if ((strcmp(argv[1], "-h") == 0)) {
@@ -163,7 +171,7 @@ int main(int argc, char *argv[])
 				quiet = 1;
 			int channel_named = -1;
 			if( argc > 2 ) {
-			  channel_named = open(argv[2], O_RDWR);
+			  channel_named = open(argv[2], O_WRONLY);
 			  if( channel_named == -1 ) {
 				fprintf(stderr, "cannot open channel");
 			  	exit(-1);

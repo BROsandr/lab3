@@ -55,21 +55,24 @@ int main() {
       printf("%s", "light_data closed\n");
       exit(0);
     };
-    if(!strcmp(light_time, "a\n")) {
+    fflush(stdout);
+    if(!strncmp(light_time, "a", 1)) {
       printf("light exits\n");
       who_exited = LIGHT;
       break;
     }
+    fflush(stdout);
     FILE *fp = popen("date -u +%H:%M:%S", "r");
     if(fp == NULL) {
       printf("popen error\n");
       exit(0);
     }
+    fflush(stdout);
     if (fgets(hms_light, 256, fp) != NULL) {
       printf("время измерения вспышки № %d: %s\n", iterations, hms_light);
     }
     pclose(fp);
-
+    fflush(stdout);
     read_res = read(sound_data, sound_time, 256);
     if(read_res == -1) {
       printf("%s", "read error\n");
@@ -78,20 +81,23 @@ int main() {
       printf("%s", "light_data closed\n");
       exit(0);
     }
+    fflush(stdout);
     // for(int i = 0; i < strlen(sound_time); ++i) {
     //   printf("%c\n", sound_time[i]);
     // }
     // printf("%x", atoi(sound_time));
-    if(!strcmp(sound_time, "b\n")) {
+    if(!strncmp(sound_time, "b", 1)) {
       printf("sound exits\n");
       who_exited = SOUND;
       break;
     }
+    fflush(stdout);
     fp = popen("date -u +%H:%M:%S", "r");
     if(fp == NULL) {
       printf("popen error\n");
       exit(0);
     }
+    fflush(stdout);
     if (fgets(hms_sound, 256, fp) != NULL) {
       printf("время измерения хлопка № %d: %s\n", iterations, hms_sound);
     }
@@ -100,7 +106,7 @@ int main() {
 
     int distance_seconds = atoi(sound_time) - atoi(light_time);
     int distance_meters  = distance_seconds * SOUND_SPEED;
-
+    fflush(stdout);
     printf("расстояние до грозы № %d: %d\n", iterations, distance_meters);
     fflush(stdout);
     iterations++;
@@ -111,15 +117,15 @@ int main() {
         printf("%s", "read error\n");
         exit(0);
       }
-      if(strcmp(light_time, "a\n")) continue;
+      if(!strcmp(light_time, "a\n")) continue;
       printf("light exited\n");
       break;
     } else {
-      if(read(sound_data, sound_time, 256)) {
+      if(read(sound_data, sound_time, 256) == -1) {
         printf("%s", "read error\n");
         exit(0);
       }
-      if(strcmp(sound_time, "b\n")) continue;
+      if(!strcmp(sound_time, "b\n")) continue;
       printf("sound exited\n");
       break;
     }
