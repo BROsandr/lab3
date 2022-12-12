@@ -145,6 +145,9 @@ void* sound_detect(void *thread_data) {
     char history_local[256] = { '\0' };
     sprintf(history_local, "время измерения хлопка № %d: %d:%d:%d\n", iterations_local, calendar_time->tm_hour, calendar_time->tm_min, calendar_time->tm_sec);
 
+    printf("%s", history_local);
+    fflush(stdout);
+
     pthread_mutex_lock(&history_mutex);
     strcpy(history[1], history_local);
     pthread_mutex_unlock(&history_mutex);
