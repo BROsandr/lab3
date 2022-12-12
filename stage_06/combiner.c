@@ -189,9 +189,17 @@ void* distance_calculate(void *thread_data) {
       int distance_meters  = distance_seconds * SOUND_SPEED;
       fflush(stdout);
 
+      char history_local[256] = { '\0' };
       pthread_mutex_lock(&iterations_mutex);
-      printf("расстояние до грозы № %d: %d\n", iterations++, distance_meters);
+      sprintf(history_local, "расстояние до грозы № %d: %d\n", iterations++, distance_meters);
       pthread_mutex_unlock(&iterations_mutex);
+
+      printf("%s", history_local);
+      fflush(stdout);
+
+      pthread_mutex_lock(&history_mutex);
+      strcpy(history[2], history_local);
+      pthread_mutex_unlock(&history_mutex);
 
       fflush(stdout);
     }
@@ -231,6 +239,14 @@ void* user_input(void *thread_data) {
       pthread_mutex_lock(&iterations_mutex);
       iterations = 1;
       pthread_mutex_unlock(&iterations_mutex);
+    }
+    if(!strncmp(input, "last", 4)){
+      printf("printing history\n");
+      pthread_mutex_lock(&history_mutex);
+      printf("%s", history[0]);
+      printf("%s", history[1]);
+      printf("%s", history[2]);
+      pthread_mutex_unlock(&history_mutex);
     }
   }
 }
