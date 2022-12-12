@@ -198,16 +198,36 @@ void* distance_calculate(void *thread_data) {
   }
 }
 
+pid_t get_pid(const char *name) {
+  char command[256] = { '\0' };
+  sprintf(command, "pidof -s %s", name);
+  char buf[512] = { '\0' };
+  FILE *cmd_pipe = popen(command, "r");
+
+  fgets(buf, 512, cmd_pipe);
+  pid_t pid = strtoul(buf, NULL, 10);
+
+  pclose( cmd_pipe );
+
+  return pid;
+}
+
 void* user_input(void *thread_data) {
   while(1) {
     char input[256] = {'\0'};
     scanf("%s", input);
     if(!strncmp(input, "stop", 4)){
-      system("sudo pkill -SIGINT light_detect");
-      system("sudo pkill -SIGINT light_detect");
-      exit(0);
+      printf("stopping\n");
+      pid_t light_detect = get_pid("light_detect");
+      pid_t sound_detect = get_pid("sound_detect");
+      kill(light_detect, SIGINT);
+      kill(sound_detect, SIGINT);
+//      popen("pkill -SIGINT light_detect", "r");
+//      system("pkill -SIGINT light_detect");
+//      system("pkill -SIGINT light_detect");
     }
     if(!strncmp(input, "restart", 7)){
+      printf("restarted\n");
       pthread_mutex_lock(&iterations_mutex);
       iterations = 1;
       pthread_mutex_unlock(&iterations_mutex);
@@ -234,9 +254,16 @@ int main() {
     exit(-1);
   }
 
-  pthread_join(thread_distance, NULL);
+  pthread_t thread_input;
+  if (pthread_create(&thread_input, NULL, user_input, NULL) != 0) {
+    fprintf(stderr, "error: pthread_create was failed %d\n", __LINE__);
+    exit(-1);
+  }
+
+  pthread_detach(thread_distance);
   pthread_join(thread_sound, NULL);
   pthread_join(thread_light, NULL);
+  pthread_detach(thread_input);
 
   // while(1) {
   //   if(who_exited == SOUND) {
